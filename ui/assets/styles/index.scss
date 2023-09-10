@@ -1,0 +1,13 @@
+@use 'sass:math';
+@import "./variables.scss";
+@import "bootstrap/scss/bootstrap";
+
+// FIX: 解决 modal 显示时页面抖动问题
+.modal-open {
+	overflow-y: auto !important;
+	padding-right: 0 !important;
+}
+
+input::placeholder{
+    color: #989898 !important;
+}
