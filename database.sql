@@ -52,7 +52,7 @@ create table posts_category (
     posts_id integer not null,
     category_id integer not null,
     foreign key (posts_id) references posts(id),
-    foreign key (tag_id) references tags(id)
+    foreign key (category_id) references tags(id)
 );
 
 
@@ -105,3 +105,18 @@ CREATE TABLE sessions (
     foreign key(user_id) references users(id)
 );
 
+-- 评论表分两情况，一种有账号用户，无账号用户留言
+create table comments (
+    id integer not null primary key autoincrement,
+    posts_id integer not null,
+    user_id integer,
+    parent_id integer,
+    content text not null,
+    nickname text,
+    email text,
+    created_at text not null default (datetime('now', 'localtime')),
+    updated_at text not null default (datetime('now', 'localtime')),
+    deleted_at text,
+    foreign key(posts_id) references posts(id),
+    foreign key(user_id) references users(id)
+);
