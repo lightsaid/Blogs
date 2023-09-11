@@ -1,7 +1,8 @@
 {
     "Server": {
-        "Host": "localhost",
-        "Port": 5000,
+        "Host": "0.0.0.0",
+        "Port": 9099,
+        "Env": "dev",
         "Version": "0.1.0"
     },
     
@@ -22,6 +23,7 @@
     },
 
     "Logger": {
-        "Level": ""
+        "Filename": "logs/system.log",
+        "Level": "INFO"
     }
 }

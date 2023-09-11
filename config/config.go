@@ -22,6 +22,7 @@ type Config struct {
 	Server struct {
 		Host    string
 		Port    int
+		Env     string
 		Version string
 	}
 
@@ -43,7 +44,7 @@ type Config struct {
 
 	Logger struct {
 		Filename string // 存储位置
-		Level    string
+		Level    string // DEBUG|INFO|WARN|ERROR
 	}
 }
 
