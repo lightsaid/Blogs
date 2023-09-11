@@ -38,7 +38,7 @@
                                 <NuxtLink class="dropdown-item" to="/about">设置</NuxtLink>
                             </li>
                             <li>
-                                <NuxtLink class="dropdown-item" to="/posts/write">写博文</NuxtLink>
+                                <NuxtLink class="dropdown-item" to="/posts/new">写博文</NuxtLink>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">

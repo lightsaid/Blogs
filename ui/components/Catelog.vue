@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>写文章</h1>
+        Catelog
     </div>
 </template>
 
@@ -8,6 +8,6 @@
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
 </style>
