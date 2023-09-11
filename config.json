@@ -1,0 +1,27 @@
+{
+    "Server": {
+        "Host": "localhost",
+        "Port": 5000,
+        "Version": "0.1.0"
+    },
+    
+    "Database":{
+        "Source": "db.sqlite",
+        "MaxOpenConns": 30,
+        "MaxIdleConns": 30,
+        "MaxIdleTime": "5m"
+    },
+
+    "Token":{
+        "SecretKey": "bs2Kd0sdLnod7h3hKslo9bsdmNBgf0ib",
+        "TokenExpire": "15m"
+    },
+
+    "Cookie":{
+        "SecretKey": "px7yxmq0w7h3GXlp5axBL920xyz"
+    },
+
+    "Logger": {
+        "Level": ""
+    }
+}
