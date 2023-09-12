@@ -100,12 +100,13 @@ CREATE TABLE sessions (
     user_id integer not null,
     refresh_token text not null unique,
     client_ip text not null default '',
-    created_at text not null,
+    created_at text not null default (datetime('now', 'localtime')),
     expired_at text not null,
     foreign key(user_id) references users(id)
 );
 
 -- 评论表分两情况，一种有账号用户，无账号用户留言
+drop table if exists comments;
 create table comments (
     id integer not null primary key autoincrement,
     posts_id integer not null,
@@ -120,3 +121,62 @@ create table comments (
     foreign key(posts_id) references posts(id),
     foreign key(user_id) references users(id)
 );
+
+
+-- 创建2个用户，以后在开放注册 password: abc123
+insert into users (email, password, username, avatar, role, activated_at) values(
+    "xqq@qq.com", 
+    "$2a$12$y2Yh9B.s.oqkzyaNXQ8ANO2kwlqyO7fJvQIXVGhkWhYlXQxce/Lfm",
+    "xqq",
+    "http://",
+    1,
+    datetime('now', 'localtime')
+),(
+    "xzz@qq.com", 
+    "$2a$12$y2Yh9B.s.oqkzyaNXQ8ANO2kwlqyO7fJvQIXVGhkWhYlXQxce/Lfm",
+    "xzz",
+    "http://",
+    0,
+    datetime('now', 'localtime')
+);
+
+select *from users;
+
+select 
+    totalRecords,
+    p.id, 
+    p.title,
+    p.content,
+    p.keyword,
+    p.slug,
+    p.abstract,
+    p.cover_image_id,
+    p.views,
+    p.likes,
+    p.comments,
+    p.created_at,
+    p.updated_at,
+    t.title,
+    t.slug,
+    t.created_at,
+    t.updated_at
+from -- 为了保证分页正确
+   (
+        select count(*) over() as totalRecords, * from posts limit 5 offset 0
+   ) p
+join 
+    posts_tag pt on pt.posts_id = p.id
+join 
+    tags t on  t.id = pt.tag_id
+where 
+    p.deleted_at is null
+group by p.id, t.id
+order by p.created_at DESC;
+
+
+select 
+		t.id, t.title, t.slug, t.created_at, t.updated_at 
+	from posts_tag pt
+	join posts p on p.id=pt.posts_id
+	join tags t on t.id=pt.tag_id
+	where p.id = 1 and p.deleted_at is null;

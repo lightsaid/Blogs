@@ -12,6 +12,9 @@ type Posts struct {
 	Views    int    `db:"views" json:"views"`
 	Comments int    `db:"comments" json:"comments"`
 	Likes    int    `db:"likes" json:"likes"`
+
+	Categories []*Category `json:"Categories"`
+	Tags       []*Tag      `json:"tags"`
 }
 
 type PostsCategory struct {
