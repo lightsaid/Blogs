@@ -33,7 +33,6 @@ func InitLogger() {
 	logLevel := toSlogLevel(config.AppConf.Logger.Level)
 
 	var out io.Writer = os.Stdout
-	var addSource bool
 	if config.AppConf.Server.Env == config.EnvProd {
 		out = &lumberjack.Logger{
 			Filename:   config.AppConf.Logger.Filename,
@@ -42,13 +41,12 @@ func InitLogger() {
 			MaxAge:     30,   //days
 			Compress:   true, // disabled by default
 		}
-		addSource = true
 	}
 
 	handler := slog.NewJSONHandler(
 		out,
 		&slog.HandlerOptions{
-			AddSource: addSource,
+			AddSource: true,
 			Level:     logLevel,
 		})
 

@@ -2,6 +2,7 @@ package dbrepo
 
 import (
 	"context"
+	"log/slog"
 	"strings"
 
 	"github.com/lightsaid/blogs/models"
@@ -350,10 +351,18 @@ func (store *postsRepo) BlukInsertPostsCategory(ctx context.Context, pcs []*mode
 	var values []string
 	var params []interface{}
 	for _, pc := range pcs {
-		values = append(values, "($1, $2)")
+		values = append(values, "(?, ?)") // 这里不能使用 $ 模式
 		params = append(params, pc.PostsID, pc.CategoryID)
 	}
 	querySQL += strings.Join(values, ",")
+
+	slog.InfoContext(ctx, "BlukInsertPostsCategory",
+		slog.String("sql", querySQL), slog.Any("params", params))
+
+	// 没有可插入数据
+	if len(values) == 0 {
+		return nil
+	}
 
 	_, err := store.DB.ExecContext(ctx, querySQL, params...)
 	if err != nil {
@@ -370,10 +379,15 @@ func (store *postsRepo) BlukInsertPostsTag(ctx context.Context, pts []*models.Po
 	var values []string
 	var params []interface{}
 	for _, pt := range pts {
-		values = append(values, "($1, $2)")
+		values = append(values, "(?, ?)") // 这里不能使用 $ 模式
 		params = append(params, pt.PostsID, pt.TagID)
 	}
 	querySQL += strings.Join(values, ",")
+
+	// 没有可插入数据
+	if len(values) == 0 {
+		return nil
+	}
 
 	_, err := store.DB.ExecContext(ctx, querySQL, params...)
 	if err != nil {

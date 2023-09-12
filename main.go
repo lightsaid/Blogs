@@ -40,12 +40,8 @@ func main() {
 		}
 	}()
 
-	// 初始化数据库操作仓库（dbrepo）
-
-	// 初始化控制器（controllers）
-
 	// 初始化路由 (routers)
-	mux := routers.NewRouter()
+	mux := routers.NewRouter(db)
 
 	addr := fmt.Sprintf("%s:%d", config.AppConf.Server.Host, config.AppConf.Server.Port)
 
