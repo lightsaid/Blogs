@@ -31,7 +31,7 @@ type categoryRepo struct {
 
 // Insert 添加一个分类
 func (store *categoryRepo) Insert(ctx context.Context, category *models.Category) (int64, error) {
-	querySQL := `insert into category(title, slug) values();`
+	querySQL := `insert into category(title, slug) values($1, $2);`
 	result, err := store.DB.ExecContext(ctx, querySQL, category.Title, category.Slug)
 	if err != nil {
 		return 0, err
@@ -53,7 +53,7 @@ func (store *categoryRepo) GetAll(ctx context.Context) (list []*models.Category,
 func (store *categoryRepo) Get(ctx context.Context, id int64) (category *models.Category, err error) {
 	query := `select id, title, slug, created_at, updated_at from category where id=$1 and deleted_at is null`
 	category = new(models.Category)
-	store.DB.GetContext(ctx, category, query, id)
+	err = store.DB.GetContext(ctx, category, query, id)
 	return
 }
 
@@ -72,8 +72,7 @@ func (store *categoryRepo) Update(ctx context.Context, category *models.Category
 	if err != nil {
 		return err
 	}
-	_, err = result.RowsAffected()
-	return err
+	return handleRowsAffected(result.RowsAffected())
 }
 
 // 删除一个分类
@@ -89,6 +88,6 @@ func (store *categoryRepo) Delete(ctx context.Context, id int64) error {
 	if err != nil {
 		return err
 	}
-	_, err = result.RowsAffected()
-	return err
+
+	return handleRowsAffected(result.RowsAffected())
 }

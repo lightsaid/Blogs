@@ -5,6 +5,9 @@ import (
 	"log/slog"
 	"os"
 	"time"
+
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 )
 
 // config package 存放配置和全局变量
@@ -15,8 +18,16 @@ const (
 	EnvProd = "prod" // prod 生成模式
 )
 
-// 解析配置文件到此变量，提供给全局使用
-var AppConf = new(Config)
+var (
+	// 解析配置文件到此变量，提供给全局使用
+	AppConf = new(Config)
+
+	// 验证器的翻译器
+	Trans ut.Translator
+
+	// 验证器
+	Validate *validator.Validate
+)
 
 type Config struct {
 	Server struct {

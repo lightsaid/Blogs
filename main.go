@@ -40,6 +40,11 @@ func main() {
 		}
 	}()
 
+	// 初始化验证器, 并设置为全局的
+	trans, validate := initializers.InitValidator()
+	config.Trans = trans
+	config.Validate = validate
+
 	// 初始化路由 (routers)
 	mux := routers.NewRouter(db)
 

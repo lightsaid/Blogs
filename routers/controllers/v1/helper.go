@@ -1,0 +1,72 @@
+package v1
+
+import (
+	"log/slog"
+	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-playground/validator/v10"
+	"github.com/lightsaid/blogs/config"
+	"github.com/lightsaid/blogs/request"
+	"github.com/lightsaid/blogs/respond"
+)
+
+const (
+	successText = "successful"
+)
+
+type envelop map[string]interface{}
+
+func bindRequest(w http.ResponseWriter, r *http.Request, req interface{}) bool {
+	err := request.ReadJSON(w, r, &req)
+	if err != nil {
+		errorResponse(w, r, http.StatusBadRequest, err, err.Error())
+		return false
+	}
+
+	if err = config.Validate.Struct(req); err != nil {
+		if _, ok := err.(*validator.InvalidValidationError); ok {
+			slog.ErrorContext(r.Context(), "请使用结构体指针作为参数", slog.String("error", err.Error()))
+			errorResponse(w, r, http.StatusBadRequest, err, "参数格式错误")
+			return false
+		}
+
+		errs := err.(validator.ValidationErrors)
+
+		var msgs []string
+		for _, e := range errs.Translate(config.Trans) {
+			msgs = append(msgs, e)
+		}
+
+		errorResponse(w, r, http.StatusBadRequest, err, strings.Join(msgs, ", "))
+		return false
+	}
+	return true
+}
+
+func bindParamInt64(w http.ResponseWriter, r *http.Request, key string) (int64, bool) {
+	val, err := strconv.Atoi(chi.URLParam(r, key))
+	if err != nil {
+		errorResponse(w, r, http.StatusBadRequest, err, "请输入合法参数")
+		return 0, false
+	}
+
+	return int64(val), true
+}
+
+func errorResponse(w http.ResponseWriter, r *http.Request, status int, err error, msg string) {
+	slog.ErrorContext(r.Context(), msg, slog.String("error", err.Error()))
+	data := envelop{"msg": msg}
+	if err := respond.New(w).Status(status).JSON(data); err != nil {
+		slog.ErrorContext(r.Context(), msg, slog.String("error", err.Error()), slog.Any("data", data))
+	}
+}
+
+func successResponse(w http.ResponseWriter, r *http.Request, data interface{}) {
+	err := respond.New(w).JSON(data)
+	if err != nil {
+		slog.ErrorContext(r.Context(), "successResponse", slog.String("error", err.Error()), slog.Any("data", data))
+	}
+}

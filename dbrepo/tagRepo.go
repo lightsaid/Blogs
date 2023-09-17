@@ -31,7 +31,7 @@ type tagRepo struct {
 
 // Insert 添加一个tag
 func (store *tagRepo) Insert(ctx context.Context, tag *models.Tag) (int64, error) {
-	querySQL := `insert into tags(title, slug) values();`
+	querySQL := `insert into tags(title, slug) values($1, $2);`
 	result, err := store.DB.ExecContext(ctx, querySQL, tag.Title, tag.Slug)
 	if err != nil {
 		return 0, err
@@ -54,7 +54,7 @@ func (store *tagRepo) GetAll(ctx context.Context) (list []*models.Tag, err error
 func (store *tagRepo) Get(ctx context.Context, id int64) (tag *models.Tag, err error) {
 	query := `select id, title, slug, created_at, updated_at from tags where id=$1 and deleted_at is null`
 	tag = new(models.Tag)
-	store.DB.GetContext(ctx, tag, query, id)
+	err = store.DB.GetContext(ctx, tag, query, id)
 	return
 }
 
@@ -73,8 +73,7 @@ func (store *tagRepo) Update(ctx context.Context, tag *models.Tag) error {
 	if err != nil {
 		return err
 	}
-	_, err = result.RowsAffected()
-	return err
+	return handleRowsAffected(result.RowsAffected())
 }
 
 // 删除一个tag
@@ -90,6 +89,5 @@ func (store *tagRepo) Delete(ctx context.Context, id int64) error {
 	if err != nil {
 		return err
 	}
-	_, err = result.RowsAffected()
-	return err
+	return handleRowsAffected(result.RowsAffected())
 }

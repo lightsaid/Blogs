@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/lightsaid/blogs/dbrepo"
-	"github.com/lightsaid/blogs/request"
 	"github.com/lightsaid/blogs/routers/forms"
 	"github.com/lightsaid/blogs/service"
 )
@@ -20,14 +19,10 @@ func NewPostsController(store dbrepo.PostsRepo) *PostsController {
 	}
 }
 
-func (p *PostsController) NewPosts(w http.ResponseWriter, r *http.Request) {
+func (p *PostsController) Add(w http.ResponseWriter, r *http.Request) {
 	var req forms.NewPostsRequest
-	if err := request.ReadJSON(w, r, &req); err != nil {
-		slog.ErrorContext(r.Context(), "->>> "+err.Error())
-		return
-	}
-	if err := req.Validate(); err != nil {
-		slog.Error(err.Error())
+
+	if ok := bindRequest(w, r, &req); !ok {
 		return
 	}
 

@@ -40,7 +40,7 @@ drop table if exists category;
 create table category (
     id integer not null primary key autoincrement,
     title text not null unique,
-    slug text text not null default '', -- tag 对应文章列表链接，利于EO 
+    slug text text not null default '', -- 分类对应文章列表链接，利于EO 
     created_at text not null default (datetime('now', 'localtime')),
     updated_at text not null default (datetime('now', 'localtime')),
     deleted_at text
