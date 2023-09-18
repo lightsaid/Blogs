@@ -66,7 +66,7 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 
 	wErr := cookie.WriteSigned(w, httpCookie, config.AppConf.Cookie.SecretKey)
 	if wErr != nil {
-		errorResponse(w, r, http.StatusInternalServerError, wErr, "登录失败，服务错误")
+		errorResponse(w, r, http.StatusInternalServerError, wErr, "服务错误，登录失败！")
 		return
 	}
 	data := envelop{"data": res, "msg": successText}

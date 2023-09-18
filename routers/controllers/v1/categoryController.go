@@ -26,7 +26,7 @@ func (c *CategoryController) Add(w http.ResponseWriter, r *http.Request) {
 
 	newID, err := c.server.Insert(r.Context(), req.Title)
 	if err != nil {
-		errorResponse(w, r, http.StatusInternalServerError, err, err.Message())
+		errorResponse(w, r, err.StatusCode(), err, err.Message())
 		return
 	}
 
@@ -42,7 +42,7 @@ func (c *CategoryController) Update(w http.ResponseWriter, r *http.Request) {
 
 	err := c.server.Update(r.Context(), req)
 	if err != nil {
-		errorResponse(w, r, http.StatusInternalServerError, err, err.Message())
+		errorResponse(w, r, err.StatusCode(), err, err.Message())
 		return
 	}
 

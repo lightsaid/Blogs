@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/lightsaid/blogs/config"
 	"github.com/lightsaid/blogs/dbrepo"
+	"github.com/lightsaid/blogs/errs"
 	"github.com/lightsaid/blogs/models"
 	"github.com/lightsaid/blogs/routers/forms"
 	"github.com/lightsaid/blogs/token"
@@ -24,7 +24,7 @@ func NewUserServer(store dbrepo.UserRepo, session dbrepo.SessionRepo) *UserServe
 	}
 }
 
-func (srv *UserServer) Create(ctx context.Context, req forms.AddUserRequest) (int64, *dbrepo.DBError) {
+func (srv *UserServer) Create(ctx context.Context, req forms.AddUserRequest) (int64, *errs.AppError) {
 	user := models.User{
 		Email:    req.Email,
 		UserName: req.UserName,
@@ -33,47 +33,47 @@ func (srv *UserServer) Create(ctx context.Context, req forms.AddUserRequest) (in
 
 	err := user.SetHashedPassword(req.Password)
 	if err != nil {
-		return 0, dbrepo.NewDBError("密码格式不对", http.StatusBadRequest).AsError(err)
+		return 0, errs.ErrBadRequest.AsException(err)
 	}
 
 	newID, err := srv.store.Insert(ctx, &user)
 	if err != nil {
-		return 0, dbrepo.CheckError(err)
+		return 0, errs.HandleSQLError(err)
 	}
 
 	return newID, nil
 }
 
-func (srv *UserServer) Get(ctx context.Context, id int64) (*models.User, *dbrepo.DBError) {
+func (srv *UserServer) Get(ctx context.Context, id int64) (*models.User, *errs.AppError) {
 	user, err := srv.store.Get(ctx, id)
 	if err != nil {
-		return nil, dbrepo.CheckError(err)
+		return nil, errs.HandleSQLError(err)
 	}
 
 	return user, nil
 }
 
-func (srv *UserServer) GetByEmail(ctx context.Context, email string) (*models.User, *dbrepo.DBError) {
+func (srv *UserServer) GetByEmail(ctx context.Context, email string) (*models.User, *errs.AppError) {
 	user, err := srv.store.GetByEmail(ctx, email)
 	if err != nil {
-		return nil, dbrepo.CheckError(err)
+		return nil, errs.HandleSQLError(err)
 	}
 
 	return user, nil
 }
 
-func (srv *UserServer) ActivateUser(ctx context.Context, id int64) *dbrepo.DBError {
+func (srv *UserServer) ActivateUser(ctx context.Context, id int64) *errs.AppError {
 	err := srv.store.Activate(ctx, id)
 	if err != nil {
-		return dbrepo.CheckError(err)
+		return errs.HandleSQLError(err)
 	}
 	return nil
 }
 
-func (srv *UserServer) Update(ctx context.Context, req forms.UpdateUserRequest) *dbrepo.DBError {
+func (srv *UserServer) Update(ctx context.Context, req forms.UpdateUserRequest) *errs.AppError {
 	user, err := srv.store.Get(ctx, req.ID)
 	if err != nil {
-		return dbrepo.CheckError(err)
+		return errs.HandleSQLError(err)
 	}
 
 	if req.Avatar != "" {
@@ -86,27 +86,27 @@ func (srv *UserServer) Update(ctx context.Context, req forms.UpdateUserRequest) 
 
 	err = srv.store.Update(ctx, user)
 	if err != nil {
-		return dbrepo.CheckError(err)
+		return errs.HandleSQLError(err)
 	}
 
 	return nil
 }
 
-func (srv *UserServer) Login(ctx context.Context, req forms.LoginRequest) (*forms.LoginResponse, *dbrepo.DBError) {
+func (srv *UserServer) Login(ctx context.Context, req forms.LoginRequest) (*forms.LoginResponse, *errs.AppError) {
 	user, err := srv.store.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, dbrepo.CheckError(err)
+		return nil, errs.HandleSQLError(err)
 	}
 
 	// 检查密码
 	ok := user.MatchesPassword(req.Password, user.Password)
 	if !ok {
-		return nil, dbrepo.NewDBError("密码不匹配", http.StatusBadRequest)
+		return nil, errs.ErrBadRequest.AsException(err, "密码不匹配")
 	}
 
 	// 检查是否已激活
 	if user.ActivatedAt == nil || *user.ActivatedAt == "" {
-		return nil, dbrepo.NewDBError("请先去邮箱激活账号，再登录", http.StatusBadRequest)
+		return nil, errs.ErrBadRequest.AsException(err, "请先去邮箱激活账号，再登录")
 	}
 
 	// 创建Token
@@ -116,7 +116,7 @@ func (srv *UserServer) Login(ctx context.Context, req forms.LoginRequest) (*form
 	refreshPayload, rErr := token.NewPayload(user.ID, config.ParseDuration(config.AppConf.Token.RefreshExpire, 72*time.Hour))
 
 	if aErr != nil || rErr != nil {
-		return nil, dbrepo.ErrDBInternal.AsError(aErr).AsError(rErr)
+		return nil, errs.ErrInternalServer.AsException(aErr).AsException(rErr)
 	}
 
 	// 访问 token access Token
@@ -125,7 +125,7 @@ func (srv *UserServer) Login(ctx context.Context, req forms.LoginRequest) (*form
 	rToken, rErr := config.TokenMaker.GenToken(refreshPayload)
 
 	if aErr != nil || rErr != nil {
-		return nil, dbrepo.ErrDBInternal.AsError(aErr).AsError(rErr)
+		return nil, errs.ErrInternalServer.AsException(aErr).AsException(rErr)
 	}
 
 	// 创建 session
@@ -137,7 +137,7 @@ func (srv *UserServer) Login(ctx context.Context, req forms.LoginRequest) (*form
 	}
 	_, err = srv.session.Insert(ctx, &sess)
 	if err != nil {
-		return nil, dbrepo.CheckError(err)
+		return nil, errs.HandleSQLError(err)
 	}
 
 	// 返回 response
