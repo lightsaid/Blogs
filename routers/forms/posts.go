@@ -1,7 +1,7 @@
 package forms
 
 type NewPostsRequest struct {
-	AuthorID    int64   `json:"author_id" validate:"required,min=1"`
+	AuthorID    int64   `json:"author_id" validate:"required,gte=1"`
 	Title       string  `json:"title" validate:"required"`
 	Content     string  `json:"content" validate:"required"`
 	Keyword     string  `json:"keyword"`

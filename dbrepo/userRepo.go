@@ -13,7 +13,7 @@ type UserRepo interface {
 	// GetByEmail 获取用户
 	Get(ctx context.Context, id int64) (user *models.User, err error)
 	// GetByEmail 获取用户
-	GetByEmail(ctx context.Context, email int64) (user *models.User, err error)
+	GetByEmail(ctx context.Context, email string) (user *models.User, err error)
 	// 激活用户
 	Activate(ctx context.Context, id int64) error
 	// 更新用户
@@ -56,7 +56,7 @@ func (store *userRepo) Get(ctx context.Context, id int64) (user *models.User, er
 }
 
 // GetByEmail 根据获取用户
-func (store *userRepo) GetByEmail(ctx context.Context, email int64) (user *models.User, err error) {
+func (store *userRepo) GetByEmail(ctx context.Context, email string) (user *models.User, err error) {
 	user = new(models.User)
 	query := `select 
 		id, email, password, username, avatar, role, activated_at, created_at, updated_at

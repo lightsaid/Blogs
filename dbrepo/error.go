@@ -119,7 +119,8 @@ func CheckError(err error) *DBError {
 			if strings.Contains(errMsg, "category.title") {
 				return ErrRecordExists.AsError(err, "分类已存在")
 			}
-			return ErrRecordExists.AsError(err)
+			// TODO: 这里不一定是唯一约束冲突，还有可能是非空约束
+			// return ErrRecordExists.AsError(err)
 		}
 
 		return ErrDBInternal.AsError(err)

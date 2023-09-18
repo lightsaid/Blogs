@@ -8,6 +8,7 @@ import (
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	"github.com/lightsaid/blogs/token"
 )
 
 // config package 存放配置和全局变量
@@ -15,9 +16,10 @@ import (
 // 全局常量
 const (
 	EnvDev  = "dev"  // dev 开发模式
-	EnvProd = "prod" // prod 生成模式
+	EnvProd = "prod" // prod 生产模式
 )
 
+// 全局变量
 var (
 	// 解析配置文件到此变量，提供给全局使用
 	AppConf = new(Config)
@@ -27,6 +29,9 @@ var (
 
 	// 验证器
 	Validate *validator.Validate
+
+	// Token 管理者
+	TokenMaker token.Maker
 )
 
 type Config struct {
@@ -45,12 +50,14 @@ type Config struct {
 	}
 
 	Token struct {
-		SecretKey   string
-		TokenExpire string
+		SecretKey     string
+		TokenExpire   string
+		RefreshExpire string // Refresh Token 有效时长
 	}
 
 	Cookie struct {
 		SecretKey string
+		Name      string
 	}
 
 	Logger struct {

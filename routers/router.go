@@ -19,6 +19,8 @@ func NewRouter(db *sqlx.DB) http.Handler {
 	categoryCtrl := v1.NewCategoryController(store.CategoryRepo)
 	tagCtrl := v1.NewTagController(store.TagRepo)
 
+	userCtrl := v1.NewUserController(store.UserRepo, store.SessionRepo)
+
 	// 主路由
 	mux := chi.NewRouter()
 
@@ -33,27 +35,17 @@ func NewRouter(db *sqlx.DB) http.Handler {
 	// v1 路由
 	apiV1 := chi.NewRouter()
 	apiV1.Get("/healthz", v1.HealthZ)
+	apiV1.Post("/register", userCtrl.Register)
+	apiV1.Post("/login", userCtrl.Login)
 
 	apiV1.Route("/auth", func(r chi.Router) {
-		r.Post("/login", nil)   // 登录
-		r.Post("/logout", nil)  // 注销
-		r.Post("/refresh", nil) // 刷新 token
+		r.Post("/logout", userCtrl.Logout)   // 注销
+		r.Post("/refresh", userCtrl.Refresh) // 刷新 token
 	})
 
 	apiV1.Route("/profile", func(r chi.Router) {
-		r.Get("/", nil) // 获取个人信息
-		r.Put("/", nil) // 更新个人信息
-	})
-
-	apiV1.Route("/posts", func(r chi.Router) {
-		r.Post("/", postsCtlr.Add)           // 新增
-		r.Put("/", nil)                      // 更新
-		r.Delete("/{id:^[0-9]+}", nil)       // 删除
-		r.Get("/", nil)                      // 获取列表
-		r.Get("/{id:^[0-9]+}", nil)          // 获取详情
-		r.Get("/category/{id:^[0-9]+}", nil) // 根据分类获取文章列表
-		r.Get("/tag/{id:^[0-9]+}", nil)      // 根据tag获取文章列表
-		r.Get("/search/{keyword}", nil)      // 查询文章，获取列表
+		r.Get("/", userCtrl.GetProfile)    // 获取个人信息
+		r.Put("/", userCtrl.UpdateProfile) // 更新个人信息
 	})
 
 	apiV1.Route("/category", func(r chi.Router) {
@@ -70,6 +62,17 @@ func NewRouter(db *sqlx.DB) http.Handler {
 		r.Delete("/{id:^[0-9]+}", tagCtrl.Delete) // 删除
 		r.Get("/", tagCtrl.List)                  // 获取列表
 		r.Get("/{id:^[0-9]+}", tagCtrl.Get)       // 获取单个
+	})
+
+	apiV1.Route("/posts", func(r chi.Router) {
+		r.Post("/", postsCtlr.Add)           // 新增
+		r.Put("/", nil)                      // 更新
+		r.Delete("/{id:^[0-9]+}", nil)       // 删除
+		r.Get("/", nil)                      // 获取列表
+		r.Get("/{id:^[0-9]+}", nil)          // 获取详情
+		r.Get("/category/{id:^[0-9]+}", nil) // 根据分类获取文章列表
+		r.Get("/tag/{id:^[0-9]+}", nil)      // 根据tag获取文章列表
+		r.Get("/search/{keyword}", nil)      // 查询文章，获取列表
 	})
 
 	apiV1.Route("/assets", func(r chi.Router) {

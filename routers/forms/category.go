@@ -5,6 +5,6 @@ type AddCategoryRequest struct {
 }
 
 type UpdateCategoryRequest struct {
-	ID    int64  `json:"id" validate:"required,min=1"`
+	ID    int64  `json:"id" validate:"required,gte=1"`
 	Title string `json:"title" validate:"required"`
 }

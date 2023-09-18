@@ -15,11 +15,13 @@
 
     "Token":{
         "SecretKey": "bs2Kd0sdLnod7h3hKslo9bsdmNBgf0ib",
-        "TokenExpire": "15m"
+        "TokenExpire": "15m",
+        "RefreshExpire": "72h"
     },
 
     "Cookie":{
-        "SecretKey": "px7yxmq0w7h3GXlp5axBL920xyz"
+        "SecretKey": "px7yxmq0w7h3GXlp5axBL920xyz",
+        "Name": "logined"
     },
 
     "Logger": {

@@ -96,7 +96,7 @@ create table assets (
 -- sessions 会话表
 drop table if exists sessions;
 CREATE TABLE sessions (
-    id text not null primary key,
+    id integer not null primary key autoincrement,
     user_id integer not null,
     refresh_token text not null unique,
     client_ip text not null default '',
@@ -139,6 +139,9 @@ insert into users (email, password, username, avatar, role, activated_at) values
     0,
     datetime('now', 'localtime')
 );
+
+
+update users set activated_at = datetime('now', 'localtime') where id = 7;
 
 select *from users;
 

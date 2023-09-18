@@ -15,6 +15,7 @@ import (
 	"github.com/lightsaid/blogs/config"
 	"github.com/lightsaid/blogs/initializers"
 	"github.com/lightsaid/blogs/routers"
+	"github.com/lightsaid/blogs/token"
 )
 
 func main() {
@@ -44,6 +45,10 @@ func main() {
 	trans, validate := initializers.InitValidator()
 	config.Trans = trans
 	config.Validate = validate
+
+	// 初始化 TokenMaker
+	config.TokenMaker, err = token.NewJWTMaker(config.AppConf.Token.SecretKey, config.AppConf.Server.Host)
+	logFatal(err, "初始化 TokenMaker failed")
 
 	// 初始化路由 (routers)
 	mux := routers.NewRouter(db)
