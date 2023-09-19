@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"github.com/lightsaid/blogs/config"
+	"github.com/lightsaid/blogs/cookie"
 	"github.com/lightsaid/blogs/errs"
 	"github.com/lightsaid/blogs/request"
 	"github.com/lightsaid/blogs/respond"
@@ -70,6 +72,32 @@ func successResponse(w http.ResponseWriter, r *http.Request, data interface{}) {
 	if err != nil {
 		slog.ErrorContext(r.Context(), "successResponse", slog.String("error", err.Error()), slog.Any("data", data))
 	}
+}
+
+func writeCookie(w http.ResponseWriter, r *http.Request, cookieName, cookieValue string, maxAge int, expires ...time.Time) error {
+	var secure bool
+	if config.AppConf.Server.Env == config.EnvProd {
+		secure = true
+	}
+
+	expiresAt := time.Now().Add(config.ParseDuration(config.AppConf.Token.RefreshExpire, 72*time.Hour))
+	if len(expires) > 0 {
+		expiresAt = expires[0]
+	}
+
+	// 写入 cookie
+	httpCookie := http.Cookie{
+		Name:     cookieName,
+		Value:    cookieValue,
+		Path:     "/",
+		Expires:  expiresAt,
+		HttpOnly: true, // 仅在HTTP请求中传递，禁止JavaScript访问
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure, // 是否启用https
+		MaxAge:   maxAge,
+	}
+
+	return cookie.WriteSigned(w, httpCookie, config.AppConf.Cookie.SecretKey)
 }
 
 // Write 定义一个公开方法，提供给外部包使用（middleware）

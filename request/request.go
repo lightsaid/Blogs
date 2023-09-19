@@ -29,7 +29,8 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 		case err.Error() == "http: request body too large":
 			return errors.New("请求体过大")
 		default:
-			return errors.New("未知错误，请检查参数")
+			slog.ErrorContext(r.Context(), "未知错误，请检查参数类型是否匹配", slog.String("error", err.Error()))
+			return errors.New("未知错误，请检查参数类型是否匹配")
 		}
 	}
 

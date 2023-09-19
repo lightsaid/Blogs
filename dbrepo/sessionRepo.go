@@ -12,6 +12,8 @@ type SessionRepo interface {
 	Insert(ctx context.Context, session *models.Session) (int64, error)
 	// Get 获取一个session
 	Get(ctx context.Context, id int64) (session *models.Session, err error)
+	// GetByToken 根据 RefreshToken 获取一个 session
+	GetByToken(ctx context.Context, token string) (session *models.Session, err error)
 }
 
 // 接口检查
@@ -36,8 +38,16 @@ func (store *sessionRepo) Insert(ctx context.Context, session *models.Session) (
 
 // Get 获取一个session
 func (store *sessionRepo) Get(ctx context.Context, id int64) (session *models.Session, err error) {
-	query := `select id, user_id, refresh_token, client_ip, created_at, expired_at where id=$1`
+	query := `select id, user_id, refresh_token, client_ip, created_at, expired_at from sessions where id=$1`
 	session = new(models.Session)
 	err = store.DB.GetContext(ctx, session, query, id)
+	return
+}
+
+// GetByToken 根据 RefreshToken 获取一个 session
+func (store *sessionRepo) GetByToken(ctx context.Context, token string) (session *models.Session, err error) {
+	query := `select id, user_id, refresh_token, client_ip, created_at, expired_at from sessions where refresh_token=$1`
+	session = new(models.Session)
+	err = store.DB.GetContext(ctx, session, query, token)
 	return
 }

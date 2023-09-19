@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/lightsaid/blogs/config"
@@ -22,7 +21,6 @@ func SetUserServer(server *service.UserServer) {
 // RequireAuth 必须登录认证才能访问
 func RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("-->> RequireAuth")
 		accessToken, err := cookie.ReadSigned(r, config.AppConf.Cookie.Name, config.AppConf.Cookie.SecretKey)
 		if err != nil && err != http.ErrNoCookie {
 			appErr := errs.ErrInternalServer.AsException(err)

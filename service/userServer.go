@@ -152,3 +152,51 @@ func (srv *UserServer) Login(ctx context.Context, req forms.LoginRequest) (*form
 
 	return &res, nil
 }
+
+func (srv *UserServer) RenewAccessToken(ctx context.Context, req forms.RefreshRequest) (string, *errs.AppError) {
+	// 验证 Token
+	payload, err := config.TokenMaker.ParseToken(req.RefreshToken)
+	if err != nil {
+		return "", errs.ErrUnauthorized
+	}
+
+	// 获取 session
+	sess, err := srv.session.GetByToken(ctx, req.RefreshToken)
+	if err != nil {
+		return "", errs.HandleSQLError(err)
+	}
+
+	expireAt, err := time.Parse(srvTimeLayout, sess.ExpiredAt)
+	if err != nil {
+		return "", errs.ErrInternalServer.AsException(err)
+	}
+
+	// 检查 sess 和 payload 信息
+
+	// 当前时间是否在expireAt之后
+	if time.Now().After(expireAt) {
+		return "", errs.ErrUnauthorized
+	}
+
+	if payload.UserID != sess.UserID {
+		return "", errs.ErrUnauthorized
+	}
+
+	if sess.RefreshToken != req.RefreshToken {
+		return "", errs.ErrUnauthorized
+	}
+
+	// 生成 AccessToken
+
+	newPayload, err := token.NewPayload(sess.UserID, config.ParseDuration(config.AppConf.Token.TokenExpire, 15*time.Minute))
+	if err != nil {
+		return "", errs.ErrInternalServer
+	}
+
+	aToken, err := config.TokenMaker.GenToken(newPayload)
+	if err != nil {
+		return "", errs.ErrInternalServer
+	}
+
+	return aToken, nil
+}

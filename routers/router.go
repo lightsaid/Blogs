@@ -56,6 +56,7 @@ func NewRouter(db *sqlx.DB) http.Handler {
 
 	apiV1.Post("/register", userCtrl.Register)
 	apiV1.Post("/login", userCtrl.Login)
+	apiV1.Post("/refresh", userCtrl.Refresh) // 刷新 token
 
 	apiV1.Route("/blogs", func(r chi.Router) {
 		r.Get("/category", categoryCtrl.List)             // 获取分类列表
@@ -77,7 +78,6 @@ func NewRouter(db *sqlx.DB) http.Handler {
 
 		// 路由
 		r.Post("/logout", userCtrl.Logout)        // 注销
-		r.Post("/refresh", userCtrl.Refresh)      // 刷新 token
 		r.Get("/profile", userCtrl.GetProfile)    // 获取个人信息
 		r.Put("/profile", userCtrl.UpdateProfile) // 更新个人信息
 	})

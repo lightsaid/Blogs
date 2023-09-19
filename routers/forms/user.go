@@ -27,3 +27,7 @@ type LoginResponse struct {
 	LoginAt      string `json:"login_at"`
 	AccessToken  string `json:"-"`
 }
+
+type RefreshRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
+}
