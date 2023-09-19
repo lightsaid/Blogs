@@ -15,7 +15,7 @@
 
     "Token":{
         "SecretKey": "bs2Kd0sdLnod7h3hKslo9bsdmNBgf0ib",
-        "TokenExpire": "15m",
+        "TokenExpire": "24h",
         "RefreshExpire": "72h"
     },
 

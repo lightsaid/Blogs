@@ -147,6 +147,7 @@ func (srv *UserServer) Login(ctx context.Context, req forms.LoginRequest) (*form
 		Avatar:       user.Avatar,
 		RefreshToken: rToken,
 		AccessToken:  aToken,
+		LoginAt:      time.Now().Format(srvTimeLayout),
 	}
 
 	return &res, nil

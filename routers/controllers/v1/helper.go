@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"github.com/lightsaid/blogs/config"
+	"github.com/lightsaid/blogs/errs"
 	"github.com/lightsaid/blogs/request"
 	"github.com/lightsaid/blogs/respond"
 )
@@ -69,4 +70,14 @@ func successResponse(w http.ResponseWriter, r *http.Request, data interface{}) {
 	if err != nil {
 		slog.ErrorContext(r.Context(), "successResponse", slog.String("error", err.Error()), slog.Any("data", data))
 	}
+}
+
+// Write 定义一个公开方法，提供给外部包使用（middleware）
+// data 只有 err.StatusCode() == 200 才会使用
+func Write(w http.ResponseWriter, r *http.Request, data interface{}, err *errs.AppError) {
+	if err.StatusCode() == http.StatusOK {
+		successResponse(w, r, data)
+		return
+	}
+	errorResponse(w, r, err.StatusCode(), err, err.Message())
 }

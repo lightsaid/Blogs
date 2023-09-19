@@ -81,7 +81,7 @@ func (store *categoryRepo) Delete(ctx context.Context, id int64) error {
 	update category 
 	set
 		deleted_at=datetime('now', 'localtime')
-	where id=$1;
+	where id=$1 and deleted_at is null;
 	`
 
 	result, err := store.DB.ExecContext(ctx, query, id)

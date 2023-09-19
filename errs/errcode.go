@@ -7,7 +7,7 @@ var (
 	ErrSuccess               = NewAppError("请求成功", http.StatusOK)                           // 200 表示请求成功
 	ErrBadRequest            = NewAppError("入参错误", http.StatusBadRequest)                   // 400  表示客户端发送的请求有误，服务器无法理解。
 	ErrUnauthorized          = NewAppError("验证失败", http.StatusUnauthorized)                 // 401 表示客户端未经身份验证或身份验证失败。
-	ErrForbidden             = NewAppError("未经授权", http.StatusForbidden)                    // 403 表示客户端未经授权访问资源。
+	ErrForbidden             = NewAppError("禁止访问", http.StatusForbidden)                    // 403 表示客户端未经授权访问资源。
 	ErrNotFound              = NewAppError("没有记录", http.StatusNotFound)                     // 404 表示请求的资源不存在
 	ErrRequestTimeout        = NewAppError("请求超时", http.StatusRequestTimeout)               // 408 表示客户端请求超时。
 	ErrRecordExists          = NewAppError("记录已存在", http.StatusConflict)                    // 409 表示记录已存在

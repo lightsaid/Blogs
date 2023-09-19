@@ -24,5 +24,6 @@ type LoginResponse struct {
 	UserName     string `json:"username"`
 	Avatar       string `json:"avatar"`
 	RefreshToken string `json:"refresh_token"`
+	LoginAt      string `json:"login_at"`
 	AccessToken  string `json:"-"`
 }

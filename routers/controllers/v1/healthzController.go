@@ -9,6 +9,6 @@ import (
 
 func HealthZ(w http.ResponseWriter, r *http.Request) {
 	slog.InfoContext(r.Context(), "v1 health check")
-	data := envelop{"version": config.AppConf.Server.Version, "status": "ok"}
+	data := envelop{"version": config.AppConf.Server.Version, "msg": successText}
 	successResponse(w, r, data)
 }
