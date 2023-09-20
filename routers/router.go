@@ -65,11 +65,11 @@ func NewRouter(db *sqlx.DB) http.Handler {
 		r.Get("/tags", tagCtrl.List)             // 获取标签列表
 		r.Get("/tags/{id:^[0-9]+}", tagCtrl.Get) // 获取单个标签
 
-		r.Get("/posts", nil)                       // 获取文章列表
-		r.Get("/posts/{id:^[0-9]+}", nil)          // 获取文章详情
-		r.Get("/posts/category/{id:^[0-9]+}", nil) // 根据分类获取文章列表
-		r.Get("/posts/tag/{id:^[0-9]+}", nil)      // 根据tag获取文章列表
-		r.Get("/posts/search/{keyword}", nil)      // 查找文章，获取列表
+		r.Get("/posts", postsCtlr.List)                                   // 获取文章列表
+		r.Get("/posts/{id:^[0-9]+}", postsCtlr.GetDetail)                 // 获取文章详情
+		r.Get("/posts/category/{id:^[0-9]+}", postsCtlr.ListByCategoryID) // 根据分类获取文章列表
+		r.Get("/posts/tag/{id:^[0-9]+}", postsCtlr.ListByTagID)           // 根据tag获取文章列表
+		r.Get("/posts/search/{keyword}", nil)                             // 查找文章，获取列表
 	})
 
 	apiV1.Route("/auth", func(r chi.Router) {
@@ -95,9 +95,9 @@ func NewRouter(db *sqlx.DB) http.Handler {
 	})
 
 	apiV1.Route("/posts", func(r chi.Router) {
-		r.Post("/", middlewares.RequirePermission(postsCtlr.Add, 1)) // 新增
-		r.Put("/", nil)                                              // 更新
-		r.Delete("/{id:^[0-9]+}", nil)                               // 删除
+		r.Post("/", middlewares.RequirePermission(postsCtlr.Add, 1))   // 新增
+		r.Put("/", middlewares.RequirePermission(postsCtlr.Update, 1)) // 更新
+		r.Delete("/{id:^[0-9]+}", nil)                                 // 删除
 	})
 
 	apiV1.Route("/assets", func(r chi.Router) {

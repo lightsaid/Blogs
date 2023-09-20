@@ -51,8 +51,7 @@ drop table if exists posts_category;
 create table posts_category (
     posts_id integer not null,
     category_id integer not null,
-    foreign key (posts_id) references posts(id),
-    foreign key (category_id) references tags(id)
+    primary key (posts_id, category_id)
 );
 
 
@@ -72,8 +71,7 @@ drop table if exists posts_tag;
 create table posts_tag (
     posts_id integer not null,
     tag_id integer not null,
-    foreign key (posts_id) references posts(id),
-    foreign key (tag_id) references tags(id)
+    primary key (posts_id, tag_id)
 );
 
 -- 文件表
@@ -145,41 +143,42 @@ update users set activated_at = datetime('now', 'localtime') where id = 7;
 
 select *from users;
 
-select 
-    totalRecords,
-    p.id, 
-    p.title,
-    p.content,
-    p.keyword,
-    p.slug,
-    p.abstract,
-    p.cover_image_id,
-    p.views,
-    p.likes,
-    p.comments,
-    p.created_at,
-    p.updated_at,
-    t.title,
-    t.slug,
-    t.created_at,
-    t.updated_at
-from -- 为了保证分页正确
-   (
-        select count(*) over() as totalRecords, * from posts limit 5 offset 0
-   ) p
-join 
-    posts_tag pt on pt.posts_id = p.id
-join 
-    tags t on  t.id = pt.tag_id
-where 
-    p.deleted_at is null
-group by p.id, t.id
-order by p.created_at DESC;
-
+-- 查询 posts 列表分2条sql实现
+select id, count(*) over() as totalRecords from posts  limit 5 offset 0;
 
 select 
-		t.id, t.title, t.slug, t.created_at, t.updated_at 
-	from posts_tag pt
-	join posts p on p.id=pt.posts_id
-	join tags t on t.id=pt.tag_id
-	where p.id = 1 and p.deleted_at is null;
+		p.id, 
+		p.title,
+		p.content,
+		p.keyword,
+		p.slug,
+		p.abstract,
+		p.cover_image_id,
+		p.views,
+		p.likes,
+		p.comments,
+		p.created_at,
+		p.updated_at,
+		t.id,
+		t.title,
+		t.slug,
+		t.created_at,
+		t.updated_at,
+		c.id,
+		c.title,
+		c.slug,
+		c.created_at,
+		c.updated_at
+	from
+		posts p
+	left join 
+		posts_tag pt on pt.posts_id = p.id
+	left join 
+		tags t on  t.id = pt.tag_id
+	left join 
+		posts_category pc on pc.posts_id = p.id 
+	left join category c on c.id = pc.category_id 
+	where p.id in (1,2,3,4,5)
+ 	order by t.id, p.id;
+	
+

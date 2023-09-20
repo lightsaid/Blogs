@@ -53,6 +53,9 @@ func InitValidator(locales ...Locale) (ut.Translator, *validator.Validate) {
 			if name == "-" {
 				return ""
 			}
+			if name == "" {
+				name = fld.Name
+			}
 			return name + " "
 		})
 

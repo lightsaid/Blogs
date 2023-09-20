@@ -3,6 +3,7 @@ package middlewares
 import (
 	"log/slog"
 	"net/http"
+	"runtime/debug"
 )
 
 // Recoverer 恐慌恢复中间件
@@ -25,7 +26,7 @@ func Recoverer(next http.Handler) http.Handler {
 				// }
 
 				// TODO: 详细log
-				slog.ErrorContext(r.Context(), "Request Panic", slog.Any("error", rvr))
+				slog.ErrorContext(r.Context(), "Request Panic", slog.Any("error", rvr), slog.String("trace", string(debug.Stack())))
 
 				if r.Header.Get("Connection") != "Upgrade" {
 					w.WriteHeader(http.StatusInternalServerError)

@@ -8,12 +8,12 @@ type Posts struct {
 	Keyword  string `db:"keyword" json:"keyword"`
 	Slug     string `db:"slug" json:"slug"`
 	Abstract string `db:"abstract" json:"abstract"`
-	CoverID  int64  `db:"cover_image_id" json:"cover_id"`
+	CoverID  *int64 `db:"cover_image_id" json:"cover_id"`
 	Views    int    `db:"views" json:"views"`
 	Comments int    `db:"comments" json:"comments"`
 	Likes    int    `db:"likes" json:"likes"`
 
-	Categories []*Category `json:"Categories"`
+	Categories []*Category `json:"categories"`
 	Tags       []*Tag      `json:"tags"`
 }
 
